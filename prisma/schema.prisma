@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  email              String    @unique
+  password           String    // Hashed password
+  role               Role      @default(USER) // Enum to define user roles: USER or ADMIN
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  recommendations    Recommendation[]
+}
+
+model Recommendation {
+  id                 Int       @id @default(autoincrement())
+  userId             Int
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Inputs (User-Provided Data)
+  gender             String    // Male, Female
+  ageRange           String    // Under 18, Under 20, Above 20
+  skinType           String    // Dry, Oily, Combination, Simple
+  skinConcern        String    // Rosacea, Blemishes, Hyperpigmentation, etc.
+  skinSensitivity    String    // Mild Sensitivity, Severe Sensitivity, etc.
+  allergyIssue       String    // Contact Dermatitis, Eczema, etc.
+
+  // Output (AI-Generated Data)
+  recommendedProduct String    @db.Text// AI-generated product recommendation
+  iv                 String   // Make it required
+  createdAt          DateTime  @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
